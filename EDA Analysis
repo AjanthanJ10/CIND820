@@ -1,0 +1,39 @@
+import pandas as pd
+import seaborn as sns
+
+import matplotlib.pyplot as plt
+
+# Load your dataset
+file_path = "/Users/ajanthanjoseph/Documents/GitHub/CIND820/heart_failure_clinical_records_dataset.csv"
+df = pd.read_csv(file_path)
+
+# Display the first few rows of the dataframe
+print(df.head())
+
+# Display basic information about the dataframe
+print(df.info())
+
+# Display summary statistics of the dataframe
+print(df.describe())
+
+# Check for missing values
+print(df.isnull().sum())
+
+# Plot histograms for each numerical feature
+df.hist(bins=30, figsize=(20, 15))
+plt.show()
+
+# Plot correlation matrix
+plt.figure(figsize=(12, 8))
+sns.heatmap(df.corr(), annot=True, cmap='coolwarm')
+plt.show()
+
+# Plot pairplot for numerical features
+sns.pairplot(df)
+plt.show()
+
+# Plot countplot for categorical features
+for column in df.select_dtypes(include=['object']).columns:
+    plt.figure(figsize=(10, 5))
+    sns.countplot(data=df, x=column)
+    plt.show()
