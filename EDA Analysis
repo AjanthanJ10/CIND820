@@ -19,6 +19,45 @@ print(df.describe())
 # Check for missing values
 print(df.isnull().sum())
 
+sns.countplot(x='DEATH_EVENT', data=df)
+plt.title('Distribution of Death Events')
+plt.show()
+
+print(df['DEATH_EVENT'].value_counts(normalize=True) * 100)
+
+# Plot boxplots for each numerical feature
+numerical_features = ['age', 'creatinine_phosphokinase', 'ejection_fraction', 'platelets', 'serum_creatinine', 'serum_sodium']
+for feature in numerical_features:
+    plt.figure(figsize=(8, 4))
+    sns.histplot(df[feature], kde=True, bins=30)
+    plt.title(f'Distribution of {feature}')
+    plt.show()
+
+
+for feature in numerical_features:
+    plt.figure(figsize=(8, 4))
+    sns.kdeplot(df[df['DEATH_EVENT'] == 0][feature], label='Survived', shade=True)
+    sns.kdeplot(df[df['DEATH_EVENT'] == 1][feature], label='Died', shade=True)
+    plt.title(f'{feature} Distribution by Death Event')
+    plt.legend()
+    plt.show()
+
+for feature in numerical_features:
+    plt.figure(figsize=(8, 4))
+    sns.boxplot(x='DEATH_EVENT', y=feature, data=df)
+    plt.title(f'{feature} by Death Event')
+    plt.show()
+
+categorical_features = ['anaemia', 'diabetes', 'high_blood_pressure', 'sex', 'smoking']
+for feature in categorical_features:
+    plt.figure(figsize=(8, 4))
+    sns.countplot(x=feature, hue='DEATH_EVENT', data=df)
+    plt.title(f'Death Event by {feature}')
+    plt.show()
+
+for feature in categorical_features:
+    print(pd.crosstab(df[feature], df['DEATH_EVENT'], normalize='index'))
+
 # Plot histograms for each numerical feature
 df.hist(bins=30, figsize=(20, 15))
 plt.show()
@@ -28,12 +67,5 @@ plt.figure(figsize=(10, 6))
 sns.heatmap(df.corr(), annot=True, cmap='coolwarm')
 plt.show()
 
-# Plot pairplot for numerical features
-sns.pairplot(df)
+sns.pairplot(df[['age', 'ejection_fraction', 'serum_creatinine', 'DEATH_EVENT']], hue='DEATH_EVENT')
 plt.show()
-
-# Plot countplot for categorical features
-for column in df.select_dtypes(include=['object']).columns:
-    plt.figure(figsize=(10, 5))
-    sns.countplot(data=df, x=column)
-    plt.show()
