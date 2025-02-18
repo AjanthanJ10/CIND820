@@ -4,7 +4,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 # Load your dataset
-file_path = "/Users/ajanthanjoseph/Documents/GitHub/CIND820/diabetes_binary_health_indicators_BRFSS2015.csv"
+file_path = "/Users/ajanthanjoseph/Documents/GitHub/CIND820/diabetes_012_health_indicators_BRFSS2015.csv"
 df = pd.read_csv(file_path)
 
 # Display the first few rows of the dataframe
@@ -29,8 +29,8 @@ print(df.dtypes)
 print(df.describe())
 
 # Countplot for the target variable
-sns.countplot(x='Diabetes_binary', data=df)
-plt.title('Distribution of Diabetes_binary')
+sns.countplot(x='Diabetes_012', data=df)
+plt.title('Distribution of Diabetes_012')
 plt.show()
 
 # Histogram for BMI
@@ -63,19 +63,19 @@ sns.countplot(x='Smoker', data=df)
 plt.title('Distribution of Smoker')
 plt.show()
 
-# Boxplot of BMI vs Diabetes_binary
-sns.boxplot(x='Diabetes_binary', y='BMI', data=df)
-plt.title('BMI vs Diabetes_binary')
+# Boxplot of BMI vs Diabetes_012
+sns.boxplot(x='Diabetes_012', y='BMI', data=df)
+plt.title('BMI vs Diabetes_012')
 plt.show()
 
-# Countplot of HighBP vs Diabetes_binary
-sns.countplot(x='HighBP', hue='Diabetes_binary', data=df)
-plt.title('High Blood Pressure vs Diabetes_binary')
+# Countplot of HighBP vs Diabetes_012
+sns.countplot(x='HighBP', hue='Diabetes_012', data=df)
+plt.title('High Blood Pressure vs Diabetes_012')
 plt.show()
 
-# Countplot of HighChol vs Diabetes_binary	
-sns.countplot(x='HighChol', hue='Diabetes_binary', data=df)
-plt.title('High Cholesterol vs Diabetes_binary')
+# Countplot of HighChol vs Diabetes_012
+sns.countplot(x='HighChol', hue='Diabetes_012', data=df)
+plt.title('High Cholesterol vs Diabetes_012')
 plt.show()
 
 # Correlation matrix
@@ -88,10 +88,10 @@ plt.title('Correlation Matrix')
 plt.show()
 
 # Pairplot for selected variables
-sns.pairplot(df[['BMI', 'MentHlth', 'PhysHlth', 'Diabetes_binary']], hue='Diabetes_binary')
+sns.pairplot(df[['BMI', 'MentHlth', 'PhysHlth', 'Diabetes_012']], hue='Diabetes_012')
 plt.show()
 
 # Scatterplot of BMI vs Physical Health by Diabetes Status
-sns.scatterplot(x='BMI', y='PhysHlth', hue='Diabetes_binary', data=df)
+sns.scatterplot(x='BMI', y='PhysHlth', hue='Diabetes_012', data=df)
 plt.title('BMI vs Physical Health by Diabetes Status')
 plt.show()
