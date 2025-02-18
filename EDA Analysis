@@ -4,7 +4,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 # Load your dataset
-file_path = "/Users/ajanthanjoseph/Documents/GitHub/CIND820/heart_failure_clinical_records_dataset.csv"
+file_path = "/Users/ajanthanjoseph/Documents/GitHub/CIND820/diabetes_012_health_indicators_BRFSS2015.csv"
 df = pd.read_csv(file_path)
 
 # Display the first few rows of the dataframe
@@ -13,59 +13,85 @@ print(df.head())
 # Display basic information about the dataframe
 print(df.info())
 
-# Display summary statistics of the dataframe
-print(df.describe())
+# Check for missing values
+print(df.isnull().sum())
+
+# Check the shape of the dataset
+print(df.shape)
 
 # Check for missing values
 print(df.isnull().sum())
 
-sns.countplot(x='DEATH_EVENT', data=df)
-plt.title('Distribution of Death Events')
+# Check data types
+print(df.dtypes)
+
+# Summary statistics
+print(df.describe())
+
+# Countplot for the target variable
+sns.countplot(x='Diabetes_012', data=df)
+plt.title('Distribution of Diabetes_012')
 plt.show()
 
-print(df['DEATH_EVENT'].value_counts(normalize=True) * 100)
-
-# Plot boxplots for each numerical feature
-numerical_features = ['age', 'creatinine_phosphokinase', 'ejection_fraction', 'platelets', 'serum_creatinine', 'serum_sodium']
-for feature in numerical_features:
-    plt.figure(figsize=(8, 4))
-    sns.histplot(df[feature], kde=True, bins=30)
-    plt.title(f'Distribution of {feature}')
-    plt.show()
-
-
-for feature in numerical_features:
-    plt.figure(figsize=(8, 4))
-    sns.kdeplot(df[df['DEATH_EVENT'] == 0][feature], label='Survived', shade=True)
-    sns.kdeplot(df[df['DEATH_EVENT'] == 1][feature], label='Died', shade=True)
-    plt.title(f'{feature} Distribution by Death Event')
-    plt.legend()
-    plt.show()
-
-for feature in numerical_features:
-    plt.figure(figsize=(8, 4))
-    sns.boxplot(x='DEATH_EVENT', y=feature, data=df)
-    plt.title(f'{feature} by Death Event')
-    plt.show()
-
-categorical_features = ['anaemia', 'diabetes', 'high_blood_pressure', 'sex', 'smoking']
-for feature in categorical_features:
-    plt.figure(figsize=(8, 4))
-    sns.countplot(x=feature, hue='DEATH_EVENT', data=df)
-    plt.title(f'Death Event by {feature}')
-    plt.show()
-
-for feature in categorical_features:
-    print(pd.crosstab(df[feature], df['DEATH_EVENT'], normalize='index'))
-
-# Plot histograms for each numerical feature
-df.hist(bins=30, figsize=(20, 15))
+# Histogram for BMI
+sns.histplot(df['BMI'], kde=True)
+plt.title('Distribution of BMI')
 plt.show()
 
-# Plot correlation matrix
-plt.figure(figsize=(10, 6))
-sns.heatmap(df.corr(), annot=True, cmap='coolwarm')
+# Histogram for Mental Health (MentHlth)
+sns.histplot(df['MentHlth'], kde=True)
+plt.title('Distribution of Mental Health')
 plt.show()
 
-sns.pairplot(df[['age', 'ejection_fraction', 'serum_creatinine', 'DEATH_EVENT']], hue='DEATH_EVENT')
+# Histogram for Physical Health (PhysHlth)
+sns.histplot(df['PhysHlth'], kde=True)
+plt.title('Distribution of Physical Health')
+plt.show()
+
+# Bar plot for High Blood Pressure (HighBP)
+sns.countplot(x='HighBP', data=df)
+plt.title('Distribution of High Blood Pressure')
+plt.show()
+
+# Bar plot for High Cholesterol (HighChol)
+sns.countplot(x='HighChol', data=df)
+plt.title('Distribution of High Cholesterol')
+plt.show()
+
+# Bar plot for Smoker
+sns.countplot(x='Smoker', data=df)
+plt.title('Distribution of Smoker')
+plt.show()
+
+# Boxplot of BMI vs Diabetes_012
+sns.boxplot(x='Diabetes_012', y='BMI', data=df)
+plt.title('BMI vs Diabetes_012')
+plt.show()
+
+# Countplot of HighBP vs Diabetes_012
+sns.countplot(x='HighBP', hue='Diabetes_012', data=df)
+plt.title('High Blood Pressure vs Diabetes_012')
+plt.show()
+
+# Countplot of HighChol vs Diabetes_012
+sns.countplot(x='HighChol', hue='Diabetes_012', data=df)
+plt.title('High Cholesterol vs Diabetes_012')
+plt.show()
+
+# Correlation matrix
+corr_matrix = df.corr()
+
+# Heatmap of the correlation matrix
+plt.figure(figsize=(12, 8))
+sns.heatmap(corr_matrix, annot=True, cmap='coolwarm')
+plt.title('Correlation Matrix')
+plt.show()
+
+# Pairplot for selected variables
+sns.pairplot(df[['BMI', 'MentHlth', 'PhysHlth', 'Diabetes_012']], hue='Diabetes_012')
+plt.show()
+
+# Scatterplot of BMI vs Physical Health by Diabetes Status
+sns.scatterplot(x='BMI', y='PhysHlth', hue='Diabetes_012', data=df)
+plt.title('BMI vs Physical Health by Diabetes Status')
 plt.show()
