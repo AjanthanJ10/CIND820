@@ -1,7 +1,10 @@
-%pip install --upgrade ydata-profiling
-
 import pandas as pd
 from ydata_profiling import ProfileReport
 
+# Load your dataset
+file_path = "/Users/ajanthanjoseph/Documents/GitHub/CIND820/diabetes_012_health_indicators_BRFSS2015.csv"
+df = pd.read_csv(file_path)
+
+# Generate the profile report
 profile = ProfileReport(df, title='Exploratory Analysis Report')
 profile.to_file('exploratory_analysis_report.html')
