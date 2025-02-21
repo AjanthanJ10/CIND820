@@ -1,0 +1,7 @@
+%pip install --upgrade ydata-profiling
+
+import pandas as pd
+from ydata_profiling import ProfileReport
+
+profile = ProfileReport(df, title='Exploratory Analysis Report')
+profile.to_file('exploratory_analysis_report.html')
