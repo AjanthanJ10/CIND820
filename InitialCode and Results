@@ -2,7 +2,6 @@ import pandas as pd
 import seaborn as sns
 
 import matplotlib.pyplot as plt
-from sklearn.preprocessing import StandardScaler
 
 # Load your dataset
 file_path = "/Users/ajanthanjoseph/Documents/GitHub/CIND820/.diabetes_012_health_indicators_BRFSS2015.csv.icloud"
@@ -46,6 +45,7 @@ y = df['Diabetes_012']
 
 # Re-import necessary libraries and redefine the ANOVA selector
 from sklearn.feature_selection import SelectKBest, chi2, f_classif
+from sklearn.preprocessing import StandardScaler
 
 # Apply Chi-Squared test for feature selection
 chi2_selector = SelectKBest(score_func=chi2, k='all')
