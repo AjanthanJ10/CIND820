@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import StandardScaler
 
 # Load your dataset
-file_path = "/content/diabetes_012_health_indicators_BRFSS2015.csv"
+file_path = "/Users/ajanthanjoseph/Documents/GitHub/CIND820/.diabetes_012_health_indicators_BRFSS2015.csv.icloud"
 df = pd.read_csv(file_path)
 
 # Create interaction features
@@ -39,6 +39,10 @@ chi_square_df.sort_values(by="p-value", inplace=True)
 
 # Display the results
 chi_square_df
+
+# Separate features and the target variable
+X = df.drop(columns=['Diabetes_012'])
+y = df['Diabetes_012']
 
 # Re-import necessary libraries and redefine the ANOVA selector
 from sklearn.feature_selection import SelectKBest, chi2, f_classif
