@@ -1,1 +1,102 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
+from imblearn.over_sampling import SMOTE
+from sklearn.model_selection import train_test_split, GridSearchCV, cross_val_score, StratifiedKFold
+from sklearn.metrics import accuracy_score, precision_score, recall_score, roc_auc_score, confusion_matrix, classification_report, roc_curve, precision_recall_curve, auc
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.tree import DecisionTreeClassifier
+from xgboost import XGBClassifier
+from catboost import CatBoostClassifier
+from sklearn.pipeline import Pipeline
+import numpy as np
+
+# Load the dataset
+file_path = '/mnt/data/diabetes_012_health_indicators_BRFSS2015.csv'
+df = pd.read_csv(file_path)
+
+# Feature engineering
+df['BMI_Age'] = df['BMI'] * df['Age']
+df['HighBP_HighChol'] = df['HighBP'] * df['HighChol']
+df['PhysActivity_BMI'] = df['PhysActivity'] * df['BMI']
+
+# Standardize numerical features
+numerical_features = ['BMI', 'Age', 'BMI_Age', 'PhysActivity_BMI']
+scaler = StandardScaler()
+df[numerical_features] = scaler.fit_transform(df[numerical_features])
+
+# Prepare features and target variable
+X = df.drop(columns=['Diabetes_012'])
+y = df['Diabetes_012']
+
+# Define cross-validation strategy
+cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+
+# Function to evaluate models with cross-validation and sensitivity analysis
+def cross_validate_model(model, X, y, model_name):
+    scores = {
+        'accuracy': cross_val_score(model, X, y, cv=cv, scoring='accuracy'),
+        'precision': cross_val_score(model, X, y, cv=cv, scoring='precision_weighted'),
+        'recall': cross_val_score(model, X, y, cv=cv, scoring='recall_weighted'),
+        'roc_auc': cross_val_score(model, X, y, cv=cv, scoring='roc_auc_ovr')
+    }
+    
+    accuracy = np.mean(scores['accuracy'])
+    precision = np.mean(scores['precision'])
+    recall = np.mean(scores['recall'])
+    roc_auc = np.mean(scores['roc_auc'])
+
+    print(f'\nModel: {model_name} (Cross-Validation)')
+    print(f'Accuracy: {accuracy:.2f}')
+    print(f'Precision: {precision:.2f}')
+    print(f'Recall: {recall:.2f}')
+    print(f'ROC AUC: {roc_auc:.2f}')
+
+# Model configurations
+models = {
+    'Logistic Regression': LogisticRegression(max_iter=200, solver='liblinear'),
+    'Random Forest': RandomForestClassifier(n_estimators=100),
+    'Decision Tree': DecisionTreeClassifier(max_depth=10),
+    'Gradient Boosting': GradientBoostingClassifier(n_estimators=100),
+    'XGBoost': XGBClassifier(use_label_encoder=False, eval_metric='logloss', n_estimators=100),
+    'CatBoost': CatBoostClassifier(verbose=0, iterations=100)
+}
+
+# Evaluate models using cross-validation on unbalanced data
+for name, model in models.items():
+    cross_validate_model(model, X, y, name)
+
+# Apply SMOTE for balancing
+smote = SMOTE(random_state=42)
+X_resampled, y_resampled = smote.fit_resample(X, y)
+
+# Evaluate models using cross-validation on balanced data
+for name, model in models.items():
+    cross_validate_model(model, X_resampled, y_resampled, f'{name} (Balanced Data)')
+
+# Hyperparameter tuning using GridSearchCV with sensitivity analysis
+param_grid = {
+    'Logistic Regression': {'C': [0.01, 0.1, 1, 10, 100]},
+    'Random Forest': {'n_estimators': [50, 100, 200], 'max_depth': [5, 10, 20]},
+    'Decision Tree': {'max_depth': [5, 10, 20], 'min_samples_split': [2, 5, 10]},
+    'Gradient Boosting': {'n_estimators': [50, 100, 200], 'learning_rate': [0.01, 0.1, 0.2]},
+    'XGBoost': {'n_estimators': [50, 100, 200], 'learning_rate': [0.01, 0.1, 0.2]},
+    'CatBoost': {'iterations': [50, 100, 200], 'learning_rate': [0.01, 0.1, 0.2]}
+}
+
+sensitivity_results = {}
+
+for name, model in models.items():
+    grid = GridSearchCV(model, param_grid.get(name, {}), cv=cv, scoring='accuracy', n_jobs=-1, verbose=1)
+    grid.fit(X_resampled, y_resampled)
+    best_model = grid.best_estimator_
+    cross_validate_model(best_model, X_resampled, y_resampled, f'{name} (Tuned with GridSearch)')
+    sensitivity_results[name] = grid.cv_results_
+
+# Print sensitivity analysis results
+for model_name, results in sensitivity_results.items():
+    print(f'Sensitivity Analysis for {model_name}:')
+    for param, mean_score in zip(results['params'], results['mean_test_score']):
+        print(f'Parameters: {param}, Mean Accuracy: {mean_score:.2f}')
 
