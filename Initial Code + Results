@@ -13,7 +13,7 @@ from sklearn.pipeline import Pipeline
 import numpy as np
 
 # Load the dataset
-file_path = '/mnt/data/diabetes_012_health_indicators_BRFSS2015.csv'
+file_path = '/Users/ajanthanjoseph/Documents/GitHub/CIND820/.diabetes_012_health_indicators_BRFSS2015.csv.icloud'
 df = pd.read_csv(file_path)
 
 # Feature engineering
