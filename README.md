@@ -27,12 +27,19 @@ Comparison and Analysis
 ## How to Run Project
 ### Install Depedencies 
 ! pip install pandas
+
 ! pip install numpy
+
 ! pip install matplotlib
+
 ! pip install seaborn
+
 ! pip install sklearn
+
 ! pip install xgboost
+
 ! pip install catboost
+
 ! pip install imbalanced-learn
 
 ### Run [Initial Code plus results.html>)](<Initial Code plus results.ipynb>)
