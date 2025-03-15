@@ -3,7 +3,7 @@
 ## Overview
 
 
-## Tentative Project Steps
+## Tentative Project Steps 
 
 ## CIND 820 - Repository Explanation
 [Diabetes Dataset][def]
