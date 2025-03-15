@@ -42,7 +42,7 @@ Comparison and Analysis
 
 ! pip install imbalanced-learn
 
-### Run [Initial Code plus results.html>)](InitialCodeplusResult.py)
+### Run [InitialCodeplusResult.py>)](InitialCodeplusResult.py)
 
 ## CIND 820 - Repository Breakdown
 [Diabetes Dataset][def6]
