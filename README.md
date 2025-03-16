@@ -45,19 +45,19 @@ Comparison and Analysis
 ### Run [InitialCodeplusResult.py>)](InitialCodeplusResult.py)
 
 ## CIND 820 - Repository Breakdown
-[Diabetes Dataset][def6]
+[Diabetes Dataset][def6] This contains the dataset that we will be using to conduct our analysis.
 
-[Exploratory Data Analysis Code][def5]
+[Exploratory Data Analysis Code][def5] The code we used to generate the EDA Report.
 
-[Exploratory Data Analysis Code HTML][def4]
+[Exploratory Data Analysis Code HTML][def4] The EDA Report we used to get a understanding of the dataset.
 
-[Initial Code + Result Jupyter Notebook File][def3]
+[Initial Code + Result Jupyter Notebook File][def3] The Jupyter Notebook we used to code our machine learning models and evaluation of the different models.
 
-[Initial Code + Result HTML][def2]
+[Initial Code + Result HTML][def2] The HTML document which holds the code plus all the results of the machine learning models.
 
-[Initial Code + Result .py File][def]
+[Initial Code + Result .py File][def] The .py file of the code.
 
-[README][def]
+[README][def] The README file.
 
 [def]: InitialCodeplusResult.py
 [def2]: Initial%20Code%20plus%20results.html
