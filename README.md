@@ -1,7 +1,7 @@
 # CIND 820: Big Data Analytics Project - Diabetes Prediction
 
 ## Overview
-
+This repository contains all the necessary files and documentation for our machine learning project focused on diabetes prediction. The project involves comparing model performance with and without data balancing techniques, specifically SMOTE, and includes hyperparameter tuning using RandomizedSearchCV. We evaluate several models, including Logistic Regression, Random Forest, Decision Tree, CatBoost, Gradient Boosting, and XGBoost. The evaluation metrics used are accuracy, precision, recall, ROC AUC, PR AUC, and confusion matrix.
 
 ## Tentative Project Steps 
 Data Preprocessing:
