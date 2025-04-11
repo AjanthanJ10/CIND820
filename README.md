@@ -1,7 +1,7 @@
 # CIND 820: Big Data Analytics Project - Diabetes Prediction
 
 ## Overview
-This repository contains all the necessary files and documentation for our machine learning project focused on diabetes prediction. The project involves comparing model performance with and without data balancing techniques, specifically SMOTE, and includes hyperparameter tuning using RandomizedSearchCV. We evaluate several models, including Logistic Regression, Random Forest, Decision Tree, CatBoost, Gradient Boosting, and XGBoost. The evaluation metrics used are accuracy, precision, recall, ROC AUC, PR AUC, and confusion matrix.
+This repository contains all the necessary files and documentation for our machine learning project focused on diabetes prediction. The project involves comparing model performance with and without data balancing techniques, specifically SMOTE, and includes hyperparameter tuning using RandomizedSearchCV. We evaluate several models, including Logistic Regression, Random Forest, Decision Tree, CatBoost, Gradient Boosting, and XGBoost. The evaluation metrics used are accuracy, precision, recall, F1 Score, MCC, PR AUC, and confusion matrix.
 
 ## Tentative Project Steps 
 Data Preprocessing:
@@ -11,7 +11,7 @@ Data Preprocessing:
 
 Training and Evaluation (Unbalanced Dataset)
 * Train Logistic Regression, Random Forest, Decision Tree, CatBoost, Gradient Boosting, XGBoost
-* Evaluate using accuracy, precision, recall, ROC AUC, PR AUC, and confusion matrix
+* Evaluate using accuracy, precision, recall, F1 Score, MCC, PR AUC, and confusion matrix
 
 Applying SMOTE for Data Balancing
 * Train and evaluate the same models
@@ -57,6 +57,10 @@ Comparison and Analysis
 
 [Initial Code + Result .py File][def] The .py file of the code.
 
+[Final Code + Results Jupyter Notebook File][def8] The Jupyter Notebook we used to code our final machine learning models and evaluation of the different models.
+
+[Final Code + Results .py File][def9] The .py file for the final code.
+
 [README][def] The README file.
 
 [def]: InitialCodeplusResult.py
@@ -66,3 +70,5 @@ Comparison and Analysis
 [def5]: EDA
 [def6]: diabetes_012_health_indicators_BRFSS2015.csv
 [def7]: README.md
+[def8]: Final Code + Results.ipynb
+[def9]: Final Code + Results
