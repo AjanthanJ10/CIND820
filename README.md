@@ -57,10 +57,6 @@ Comparison and Analysis
 
 [Initial Code + Result .py File][def] The .py file of the code.
 
-[Final Code + Results Jupyter Notebook File][def8] The Jupyter Notebook we used to code our final machine learning models and evaluation of the different models.
-
-[Final Code + Results .py File][def9] The .py file for the final code.
-
 [README][def] The README file.
 
 [def]: InitialCodeplusResult.py
@@ -71,4 +67,5 @@ Comparison and Analysis
 [def6]: diabetes_012_health_indicators_BRFSS2015.csv
 [def7]: README.md
 [Final Code + Results .py File](<Final Code + Results>) The Jupyter Notebook we used to code our final machine learning models and evaluation of the different models.
+
 [Final Code + Results Jupyter Notebook File](<Final Code + Results.ipynb>) The Jupyter Notebook we used to code our final machine learning models and evaluation of the different models.
