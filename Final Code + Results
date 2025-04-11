@@ -1,0 +1,393 @@
+# %% [markdown]
+# # CIND 820: Big Data Analytics Project - Initial Results and the Code
+
+# %% [markdown]
+# ## Importing Libraries
+
+# %%
+import pandas as pd 
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import StandardScaler
+from sklearn.feature_selection import SelectKBest, chi2, f_classif, RFECV
+from sklearn.decomposition import PCA
+from sklearn.model_selection import train_test_split, StratifiedKFold, RandomizedSearchCV
+from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.tree import DecisionTreeClassifier
+from xgboost import XGBClassifier
+from catboost import CatBoostClassifier
+from imblearn.over_sampling import SMOTE
+from sklearn.metrics import (
+    accuracy_score, precision_score, recall_score, f1_score, roc_auc_score,
+    average_precision_score, confusion_matrix, matthews_corrcoef
+)
+import time
+
+
+# %% [markdown]
+# ## Loading Dataset
+
+# %%
+# Load Dataset
+df = pd.read_csv("/Users/ajanthanjoseph/Documents/GitHub/CIND820/diabetes_012_health_indicators_BRFSS2015.csv")
+
+# %% [markdown]
+# ## Feature Generation
+
+# %%
+# Feature Engineering
+
+df["BMI_Age"] = df["BMI"] * df["Age"]
+df["HighBP_HighChol"] = df["HighBP"] * df["HighChol"]
+df["PhysActivity_BMI"] = df["PhysActivity"] * df["BMI"]
+
+# %% [markdown]
+# ## Feature Selection (Exploring the features using Chi-Square and ANOVA)
+
+# %%
+# Display top features by Chi-Square and ANOVA
+X = df.drop(columns=["Diabetes_012"])
+y = df["Diabetes_012"]
+
+chi2_selector = SelectKBest(score_func=chi2, k='all')
+chi2_selector.fit(X, y)
+chi2_scores = chi2_selector.scores_
+
+anova_selector = SelectKBest(score_func=f_classif, k='all')
+anova_selector.fit(X, y)
+anova_scores = anova_selector.scores_
+
+feature_scores = pd.DataFrame({
+    'Feature': X.columns,
+    'Chi2 Score': chi2_scores,
+    'ANOVA F Score': anova_scores
+}).sort_values(by='ANOVA F Score', ascending=False)
+
+# Print all features with scores before dropping
+print("Top Features by Chi-Square:")
+print(feature_scores.sort_values(by='Chi2 Score', ascending=False))
+
+print("Top Features by ANOVA F Score:")
+print(feature_scores.sort_values(by='ANOVA F Score', ascending=False))
+
+X_reduced = X.copy()  # No feature dropping here; RFECV will handle selection
+
+# %% [markdown]
+# ## Standardized the Data using Standard Scaler
+
+# %%
+# Standardize numerical features
+scaler = StandardScaler()
+numerical_features = ["BMI", "Age", "BMI_Age", "PhysActivity_BMI"]
+existing_numerical_features = [col for col in numerical_features if col in X_reduced.columns]
+X_reduced[existing_numerical_features] = scaler.fit_transform(X_reduced[existing_numerical_features])
+
+# %% [markdown]
+# ## Feature Selection Using Reverse Feature Elimination with Cross Validation
+
+# %%
+# === Selection of Features using RFECV ===
+rfecv_selector = RFECV(estimator=LogisticRegression(max_iter=1000), step=1, cv=5, scoring='accuracy')
+X_rfecv = rfecv_selector.fit_transform(X_reduced, y)
+print("Selected features by RFECV:", X_reduced.columns[rfecv_selector.support_].tolist())
+
+# %% [markdown]
+# ## Dictionary to save Model Evaluation Results
+
+# %%
+# Model Evaluation
+results = []
+confusion_matrices = {
+    "Unbalanced": {},
+    "SMOTE": {},
+    "Tuned": {}
+}
+
+def evaluate_model(name, model, X_train, y_train, X_test, y_test, stage):
+    start = time.time()
+    model.fit(X_train, y_train)
+    train_time = time.time() - start
+    y_pred = model.predict(X_test)
+    y_proba = model.predict_proba(X_test)
+    cm = confusion_matrix(y_test, y_pred)
+    confusion_matrices[stage][name] = cm
+
+    plt.figure(figsize=(6, 4))
+    sns.heatmap(cm, annot=True, fmt="d", cmap="Blues")
+    plt.title(f"Confusion Matrix - {name} ({stage})")
+    plt.xlabel("Predicted")
+    plt.ylabel("Actual")
+    plt.tight_layout()
+    plt.show()
+
+    return {
+        'Model': name + f" ({stage})",
+        'Accuracy': accuracy_score(y_test, y_pred),
+        'Precision': precision_score(y_test, y_pred, average='weighted'),
+        'Recall': recall_score(y_test, y_pred, average='weighted'),
+        'F1 Score': f1_score(y_test, y_pred, average='weighted'),
+        'PR-AUC': average_precision_score(y_test, y_proba, average='weighted'),
+        'MCC': matthews_corrcoef(y_test, y_pred),
+        'Train Time (s)': round(train_time, 2)
+    }
+
+# %% [markdown]
+# ## Defining Models That We Will Use
+
+# %%
+# Define models to be evaluated
+models = {
+    'Logistic Regression': LogisticRegression(max_iter=1000),
+    'Random Forest': RandomForestClassifier(random_state=42),
+    'Decision Tree': DecisionTreeClassifier(random_state=42),
+    'CatBoost': CatBoostClassifier(verbose=0, random_state=42),
+    'Gradient Boosting': GradientBoostingClassifier(random_state=42),
+    'XGBoost': XGBClassifier(random_state=42)
+}
+
+# %% [markdown]
+# ## Visualizing the Distribution of Data prior to SMOTE
+
+# %%
+# Distribution before SMOTE
+plt.figure(figsize=(6, 4))
+sns.countplot(x=y, palette="viridis")
+plt.title("Class Distribution Before SMOTE")
+plt.xlabel("Diabetes Class")
+plt.ylabel("Count")
+plt.tight_layout()
+plt.show()
+
+# Also print value counts
+print("Class Distribution Before SMOTE:")
+print(y.value_counts())
+
+
+# %% [markdown]
+# ## Unbalanced Data Machine Learning Models + Evaluation of Models
+
+# %%
+# Model and Evaluation using RFECV-Selected Features (Unbalanced, Balanced with SMOTE, and Tuned)
+X_train_rfecv, X_test_rfecv, y_train_rfecv, y_test_rfecv = train_test_split(
+    X_rfecv, y, test_size=0.3, stratify=y, random_state=42
+)
+
+for name, model in models.items():
+    results.append(evaluate_model(name, model, X_train_rfecv, y_train_rfecv, X_test_rfecv, y_test_rfecv, "Unbalanced"))
+
+print("\n=== Evaluation Results: Unbalanced Data (RFECV-Selected Features) ===")
+rfecv_results = [r for r in results if "(Unbalanced)" in r['Model']]
+rfecv_df = pd.DataFrame(rfecv_results)
+display(rfecv_df)
+
+
+# %% [markdown]
+# ## Balanced Data Machine Learning Models + Evaluation of Models
+
+# %%
+# Model and Evaluation using RFECV-Selected Features - SMOTE-Balanced Data
+smote = SMOTE(random_state=42)
+X_smote_rfecv, y_smote_rfecv = smote.fit_resample(X_rfecv, y)
+X_train_smote_rfecv, X_test_smote_rfecv, y_train_smote_rfecv, y_test_smote_rfecv = train_test_split(
+    X_smote_rfecv, y_smote_rfecv, test_size=0.3, stratify=y_smote_rfecv, random_state=42
+)
+
+for name, model in models.items():
+    results.append(evaluate_model(name, model, X_train_smote_rfecv, y_train_smote_rfecv, X_test_smote_rfecv, y_test_smote_rfecv, "SMOTE"))
+
+
+print("\n=== Evaluation Results: SMOTE-Balanced Data (RFECV-Selected Features) ===")
+smote_results = [r for r in results if "(SMOTE)" in r['Model']]
+smote_df = pd.DataFrame(smote_results)
+display(smote_df)
+
+# %% [markdown]
+# ## Distribution of Data after SMOTE was applied
+
+# %%
+# Distribution after SMOTE
+plt.figure(figsize=(6, 4))
+sns.countplot(x=y_smote_rfecv, palette="viridis")
+plt.title("Class Distribution After SMOTE")
+plt.xlabel("Diabetes Class")
+plt.ylabel("Count")
+plt.tight_layout()
+plt.show()
+
+# Also print value counts
+print("Class Distribution After SMOTE:")
+print(pd.Series(y_smote_rfecv).value_counts())
+
+# %% [markdown]
+# ## Including HyperParameter Boosting using RandomizedSearchCV + Evaluation of Models
+
+# %%
+from sklearn.model_selection import StratifiedKFold, RandomizedSearchCV, train_test_split
+
+# Use 50% of training data for tuning to speed up search
+X_tune, _, y_tune, _ = train_test_split(X_train_smote_rfecv, y_train_smote_rfecv, test_size=0.5, random_state=42)
+
+# Slightly expanded but still efficient search space
+param_grids = {
+    'Logistic Regression': {
+        'C': [0.1, 1, 10],
+        'penalty': ['l2'],
+        'solver': ['liblinear']
+    },
+    'Random Forest': {
+        'n_estimators': [100, 150],
+        'max_depth': [10, 20],
+        'min_samples_split': [2, 5]
+    },
+    'Decision Tree': {
+        'max_depth': [10, 20],
+        'min_samples_split': [2],
+        'min_samples_leaf': [1, 2]
+    },
+    'CatBoost': {
+        'iterations': [100, 200],
+        'depth': [4, 6],
+        'learning_rate': [0.05, 0.1]
+    },
+    'Gradient Boosting': {
+        'n_estimators': [100, 150],
+        'learning_rate': [0.05, 0.1],
+        'max_depth': [3, 4]
+    },
+    'XGBoost': {
+        'n_estimators': [100, 150],
+        'max_depth': [3, 4],
+        'learning_rate': [0.05, 0.1]
+    },
+}
+
+# Use StratifiedKFold for more stable cross-validation
+cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
+
+# Clear previous tuned results if re-running
+tuned_results = []
+
+for name, model in models.items():
+    print(f"⏳ Tuning {name}...")
+    search = RandomizedSearchCV(
+        estimator=model,
+        param_distributions=param_grids[name],
+        n_iter=4,              # Slightly deeper than before
+        cv=cv,
+        n_jobs=-1,             # Parallel processing
+        random_state=42,
+        verbose=1
+    )
+    
+    # Fit only on subset for speed, evaluate later on full test set
+    search.fit(X_tune, y_tune)
+    best_model = search.best_estimator_
+    
+    # Evaluate on full training and test set
+    result = evaluate_model(
+        name,
+        best_model,
+        X_train_smote_rfecv,
+        y_train_smote_rfecv,
+        X_test_smote_rfecv,
+        y_test_smote_rfecv,
+        stage="Tuned"
+    )
+    
+    tuned_results.append(result)
+
+# Display
+print("\n=== Evaluation Results: Tuned Models (SMOTE + RFECV Features) ===")
+tuned_df = pd.DataFrame(tuned_results)
+tuned_df.sort_values(by="F1 Score", ascending=False, inplace=True)
+display(tuned_df)
+
+
+# %% [markdown]
+# ## Comparison of Results Through the Three Different Phases
+
+# %%
+import pandas as pd
+
+# Convert the full results list to a DataFrame
+full_df = pd.DataFrame(results)
+
+# Separate stage and model name for plotting
+full_df['Stage'] = full_df['Model'].str.extract(r"\((.*?)\)")
+full_df['Model Name'] = full_df['Model'].str.replace(r" \((.*?)\)", "", regex=True)
+
+
+# %%
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(12, 6))
+sns.barplot(
+    data=full_df,
+    x="Model Name",
+    y="F1 Score",
+    hue="Stage"
+)
+plt.title("F1 Score Comparison Across Models and Stages")
+plt.ylabel("F1 Score")
+plt.xlabel("Model")
+plt.xticks(rotation=45)
+plt.legend(title="Data Stage")
+plt.tight_layout()
+plt.show()
+
+
+# %%
+plt.figure(figsize=(12, 6))
+sns.barplot(
+    data=full_df,
+    x="Model Name",
+    y="MCC",
+    hue="Stage"
+)
+plt.title("Matthews Correlation Coefficient (MCC) Comparison")
+plt.ylabel("MCC")
+plt.xlabel("Model")
+plt.xticks(rotation=45)
+plt.legend(title="Data Stage")
+plt.tight_layout()
+plt.show()
+
+
+# %%
+plt.figure(figsize=(12, 6))
+sns.barplot(
+    data=full_df,
+    x="Model Name",
+    y="PR-AUC",
+    hue="Stage"
+)
+plt.title("Precision-Recall AUC Comparison")
+plt.ylabel("PR-AUC")
+plt.xlabel("Model")
+plt.xticks(rotation=45)
+plt.legend(title="Data Stage")
+plt.tight_layout()
+plt.show()
+
+
+# %%
+plt.figure(figsize=(12, 6))
+sns.barplot(
+    data=full_df,
+    x="Model Name",
+    y="Train Time (s)",
+    hue="Stage"
+)
+plt.title("Training Time Comparison")
+plt.ylabel("Train Time (seconds)")
+plt.xlabel("Model")
+plt.xticks(rotation=45)
+plt.legend(title="Data Stage")
+plt.tight_layout()
+plt.show()
+
+
+
