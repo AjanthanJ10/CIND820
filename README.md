@@ -70,5 +70,5 @@ Comparison and Analysis
 [def5]: EDA
 [def6]: diabetes_012_health_indicators_BRFSS2015.csv
 [def7]: README.md
-[def8]: Final Code + Results.ipynb
-[def9]: Final Code + Results
+[def9](<Final Code + Results>)
+[def8](<Final Code + Results.ipynb>)
