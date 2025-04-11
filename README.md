@@ -70,5 +70,5 @@ Comparison and Analysis
 [def5]: EDA
 [def6]: diabetes_012_health_indicators_BRFSS2015.csv
 [def7]: README.md
-[def9](<Final Code + Results>)
-[def8](<Final Code + Results.ipynb>)
+[Final Code + Results .py File](<Final Code + Results>) The Jupyter Notebook we used to code our final machine learning models and evaluation of the different models.
+[Final Code + Results Jupyter Notebook File](<Final Code + Results.ipynb>) The Jupyter Notebook we used to code our final machine learning models and evaluation of the different models.
